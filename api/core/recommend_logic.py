@@ -47,15 +47,18 @@ async def generate_recommendations(req: RecommendRequest) -> RecommendResponse:
     Execute the full agent pipeline to generate recommendations.
     """
     t_start = time.perf_counter()
-    log.info("[recommend_logic] START | query=%r", req.query)
+    log.info("[recommend_logic] START | query=%r filters=%r", req.query, req.filters)
 
     # 1. Validate & Redact PII (LangChain via HTTP exception to fast API)
     clean_query = await guardrail_checker.validate(req.query)
 
     # 2. Intent + retrieval
     try:
-        # Pass the clean/redacted query from guardrails into intent parser
-        intent_result = await intent_agent.parse(clean_query)
+        # Extract explicit filters from the request if provided
+        explicit_filters = req.filters.model_dump(exclude_none=True) if req.filters else None
+        
+        # Pass the clean/redacted query from guardrails and explicit filters into intent parser
+        intent_result = await intent_agent.parse(clean_query, filters=explicit_filters)
     except Exception as exc:
         log.error("[recommend_logic] IntentAgent failed: %s", exc)
         raise HTTPException(status_code=500, detail=f"Intent agent error: {exc}")

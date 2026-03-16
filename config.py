@@ -7,8 +7,9 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # --- Models ---
-EMBEDDING_MODEL = "text-embedding-3-small"
-LLM_MODEL       = "gpt-4o"
+EMBEDDING_MODEL     = "text-embedding-3-small"
+LLM_MODEL           = "gpt-4o"
+CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-12-v2"
 
 # --- Qdrant (local file mode) ---
 QDRANT_PATH             = "./storage/qdrant_db"
@@ -43,5 +44,5 @@ TOP_K           = 20
 FINAL_TOP_K     = 10
 
 # --- Ensemble weights ---
-SEMANTIC_WEIGHT = 0.8
-KEYWORD_WEIGHT  = 0.2
+SEMANTIC_WEIGHT = 0.7
+KEYWORD_WEIGHT  = 0.3

@@ -144,20 +144,21 @@ class IntentAgent:
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    async def parse(self, query: str) -> IntentResult:
+    async def parse(self, query: str, filters: dict | None = None) -> IntentResult:
         """
         Parse a raw student query into structured intent and retrieve
         the top matching courses from the catalog.
 
         Args:
             query: The student's natural-language learning query.
+            filters: Explicit UI filters passed from the frontend.
 
         Returns:
             IntentResult containing parsed intent and matched courses.
         """
-        log.info("[IntentAgent:parse] START | query=%r", query)
+        log.info("[IntentAgent:parse] START | query=%r | filters=%r", query, filters)
 
-        prompt = self._build_prompt(query)
+        prompt = self._build_prompt(query, filters)
 
         t0 = time.perf_counter()
         result = await Runner.run(intent_agent, prompt)
@@ -176,13 +177,21 @@ class IntentAgent:
 
     # ── Prompt builder ────────────────────────────────────────────────────────
 
-    def _build_prompt(self, query: str) -> str:
-        return (
-            f"Student query: {query}\n\n"
+    def _build_prompt(self, query: str, filters: dict | None = None) -> str:
+        base_prompt = f"Student query: {query}\n\n"
+        
+        if filters:
+            base_prompt += (
+                f"EXPLICIT USER FILTERS (MUST be passed EXACTLY as provided to search_courses):\n"
+                f"{json.dumps(filters)}\n\n"
+            )
+
+        base_prompt += (
             "Follow the two-step process:\n"
             "1. Call extract_intent with the structured intent.\n"
-            "2. Call search_courses using the extracted search_query and filters."
+            "2. Call search_courses using the extracted search_query and any explicit user filters provided above."
         )
+        return base_prompt
 
     # ── Result extractor ──────────────────────────────────────────────────────
 

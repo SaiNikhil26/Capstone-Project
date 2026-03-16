@@ -10,18 +10,21 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleSearch = async (query) => {
+  const handleSearch = async (query, filters = null) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
 
     try {
+      const payload = { query };
+      if (filters) payload.filters = filters;
+
       const response = await fetch('http://localhost:8080/recommend', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

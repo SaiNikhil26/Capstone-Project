@@ -20,6 +20,49 @@ Chunking long course descriptions into smaller pieces improves retrieval precisi
 
 ---
 
+## 1.1 Chunking Strategy — Hybrid Parent/Child with 3 Child Types
+
+**Decision:** Each course is indexed as **1 parent document + 3 specialised child documents + 1 BM25 document**.
+
+### Why not chunk by fixed token size?
+Fixed-size chunking is domain-agnostic and cuts mid-sentence. Course data has clearly defined semantic fields (title, skills, description). Field-aware chunking produces cleaner, more meaningful embedding representations.
+
+### Why a parent/child split?
+| Layer | Purpose |
+|---|---|
+| **Parent** | Full composite text (title + org + skills + description). Returned to the agent for rich context after retrieval. Never directly embedded for search. |
+| **Child** | Small, focused field chunks. Embedded and searched. High retrieval precision because each chunk carries a single semantic signal. |
+
+### The 3 child document types
+
+| Child Type | Content | Why |
+|---|---|---|
+| **Identity** | `title + organization + difficulty + rating` | Captures "what course is this and who offers it" — anchors semantic search to course identity |
+| **Skills** | `skills list` | Enables skill-to-skill matching — "I want to learn Python" matches courses listing Python as a skill |
+| **Description** | `what you'll learn + course description` | Captures deeper conceptual meaning — "understand how machines learn automatically" finds ML courses even without exact keywords |
+
+### Why 3 child chunks per course?
+A single chunk per course forces a trade-off: embed the skills text and lose description semantics, or embed the description and lose skill-level precision. Three purpose-built chunks let Qdrant find the right course via whichever signal is strongest in the query.
+
+### BM25 document
+A single keyword-optimised concatenation of all textual fields per course. Used by the BM25 retriever independently. Ensures exact keyword matches (e.g. course codes, specific tool names) are never missed by the semantic model.
+
+---
+
+## 1.2 Reranking Strategy — Cross-Encoder (MiniLM-L-12-v2)
+
+**Decision:** Run a **Cross-Encoder model (`cross-encoder/ms-marco-MiniLM-L-12-v2`)** to structurally rerank the Top 10 documents before returning them to the agent pipeline.
+
+**Why Reranking?**
+RRF fusion (Vector + Keyword) is mathematical and purely looks at rank position. A Cross-Encoder natively looks at the deep semantic relationship between the *entire query* and the *entire course text*. It reads both simultaneously and predicts relevance, acting as a highly accurate final filter.
+
+**Why MiniLM-L-12-v2?**
+- **Speed vs. Accuracy:** The 12-layer MiniLM model offers significantly better accuracy than the baseline 6-layer model, while remaining lightweight enough (~130MB) to run in ~40ms on a local CPU. 
+- **Cost:** Avoids the latency and cost of commercial apis like Cohere Rerank.
+- **Why not BGE or heavier models?** Larger open-source champions (like BAAI BGE) are over 1GB and add 500ms+ latency on CPUs, degrading the snappy UX needed for this application. MiniLM hits the perfect sweet spot for an interactive UI backend.
+
+---
+
 ## 2. Agent Framework — OpenAI Agents SDK over LangChain Agents
 
 **Decision:** Use the **OpenAI Agents SDK** (`agents.Agent`, `Runner`, `@function_tool`) for all LLM agents.

@@ -7,7 +7,7 @@ Capstone_Project/
 │
 ├── .env                        # Environment variables (OPENAI_API_KEY, QDRANT_PATH, LLM_MODEL, etc.)
 ├── .gitignore                  # Git ignore rules
-├── config.py                   # Centralised config — loads .env, exposes all constants to the codebase
+├── config.py                   # Centralised config — loads .env, CrossEncoder strings, exposes constants
 ├── logger.py                   # Logger factory — get_logger(name) → per-module rotating file + console handler
 ├── requirements.txt            # All Python dependencies
 │
@@ -24,7 +24,7 @@ Capstone_Project/
 │   └── bm25_index.pkl          # Pickled BM25 index for keyword retrieval
 │
 ├── retrieval/                  # Retrieval layer
-│   └── hybrid_retriever.py     # hybrid_search(query, filters) — Qdrant + BM25 → RRF fusion → parent fetch → top 10
+│   └── hybrid_retriever.py     # hybrid_search() — Qdrant + BM25 → RRF fusion → parent fetch → filters → cross-encoder rerank
 │
 ├── guardrails/                 # Input safety layer
 │   ├── __init__.py
@@ -64,7 +64,7 @@ Capstone_Project/
 │       ├── package.json        # npm dependencies (react, react-dom, lucide-react)
 │       └── src/
 │           ├── main.jsx        # React DOM root entry point
-│           ├── index.css       # Global design system — CSS variables, glassmorphism dark theme
+│           ├── index.css       # Global design system — CSS variables, minimalist light theme
 │           ├── App.jsx         # Root component — manages state, calls API Gateway, renders results
 │           ├── App.css         # App-level layout styles — hero, animation, results container
 │           └── components/

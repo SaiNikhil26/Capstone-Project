@@ -1,26 +1,26 @@
 .course-list-container {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2.5rem;
   margin-top: 2rem;
 }
 
 .pathway-stage {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
   position: relative;
 }
 
-/* Vertical timeline line */
+/* Vertical timeline line - subtle grey */
 .pathway-stage:not(:last-child)::after {
   content: '';
   position: absolute;
-  left: 17px;
-  top: 40px;
-  bottom: -3rem;
+  left: 15px;
+  top: 36px;
+  bottom: -2.5rem;
   width: 2px;
-  background: linear-gradient(to bottom, var(--accent-blue), rgba(59, 130, 246, 0.1));
+  background: var(--card-border);
   z-index: 0;
 }
 
@@ -33,27 +33,28 @@
 }
 
 .stage-indicator {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
-  color: white;
+  width: 32px;
+  height: 32px;
+  background: var(--card-bg);
+  color: var(--accent-blue);
+  border: 2px solid var(--accent-blue);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+  font-size: 0.9rem;
 }
 
 .stage-header h3 {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   color: var(--text-primary);
 }
 
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
   padding-left: 3.5rem; /* Indent from the timeline */
 }
 
@@ -70,49 +71,54 @@
   gap: 0.75rem;
   text-decoration: none;
   color: inherit;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.2s ease;
   padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--card-shadow);
 }
 
 .course-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  border-color: rgba(59, 130, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-color: var(--accent-blue);
 }
 
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .difficulty-badge {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   padding: 0.2rem 0.6rem;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
 }
 
-.difficulty-badge[data-level="beginner"] { background: rgba(20, 184, 166, 0.15); color: var(--accent-teal); }
-.difficulty-badge[data-level="intermediate"] { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-.difficulty-badge[data-level="advanced"] { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
-.difficulty-badge[data-level="mixed"] { background: rgba(244, 63, 94, 0.15); color: var(--accent-rose); }
+/* Subtle flat badges */
+.difficulty-badge[data-level="beginner"] { background: #ccfbf1; color: var(--accent-teal); }
+.difficulty-badge[data-level="intermediate"] { background: #dbeafe; color: var(--accent-blue); }
+.difficulty-badge[data-level="advanced"] { background: #ede9fe; color: var(--accent-purple); }
+.difficulty-badge[data-level="mixed"] { background: #ffe4e6; color: var(--accent-rose); }
 
 .rating {
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font-weight: 600;
-  color: #fbbf24;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #d97706; /* Amber 600 */
 }
 
 .course-title {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  font-weight: 600;
   color: var(--text-primary);
   line-height: 1.4;
   margin-bottom: 0.25rem;
@@ -122,7 +128,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--text-secondary);
 }
 
@@ -130,14 +136,14 @@
   margin-top: 0.5rem;
   font-size: 0.85rem;
   color: var(--text-secondary);
-  opacity: 0.8;
+  line-height: 1.5;
   flex-grow: 1;
 }
 
 .card-footer {
   margin-top: auto;
   padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--card-border);
   display: flex;
   justify-content: flex-end;
 }
@@ -153,6 +159,6 @@
 }
 
 .course-card:hover .view-link {
-  color: var(--accent-purple);
+  color: #1d4ed8; /* Blue 700 */
   gap: 0.6rem;
 }

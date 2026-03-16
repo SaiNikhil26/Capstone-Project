@@ -1,6 +1,11 @@
 .career-card {
   margin-bottom: 1.5rem;
-  border-top: 4px solid var(--accent-blue);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--accent-blue);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
 }
 
 .career-header {
@@ -12,6 +17,7 @@
 
 .career-header h2 {
   font-size: 1.3rem;
+  color: var(--text-primary);
 }
 
 .career-content {
@@ -24,17 +30,18 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
+  background: #eff6ff; /* Blue 50 */
+  border: 1px solid #bfdbfe; /* Blue 200 */
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  color: var(--accent-blue);
   font-weight: 600;
+  font-size: 0.9rem;
   width: fit-content;
 }
 
 .alignment-reason {
   color: var(--text-secondary);
-  font-size: 1.05rem;
+  font-size: 1rem;
   line-height: 1.6;
 }

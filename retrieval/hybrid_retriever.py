@@ -8,6 +8,7 @@ from langchain_community.retrievers import BM25Retriever
 from langchain_core.documents import Document
 from qdrant_client import QdrantClient
 from qdrant_client.models import Filter, FieldCondition, MatchValue, Range
+from sentence_transformers import CrossEncoder
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import (
@@ -19,7 +20,8 @@ from config import (
     TOP_K,
     FINAL_TOP_K,
     SEMANTIC_WEIGHT,
-    KEYWORD_WEIGHT
+    KEYWORD_WEIGHT,
+    CROSS_ENCODER_MODEL
 )
 from logger import get_logger
 
@@ -290,7 +292,46 @@ def fetch_parent_docs(
 
 
 # ─────────────────────────────────────────
-# 6. Main hybrid search function
+# 6. Cross-Encoder Reranking
+# ─────────────────────────────────────────
+
+def rerank_courses(query: str, parent_docs: list[dict]) -> list[dict]:
+    """
+    Reranks the final parent documents using a Cross-Encoder model.
+    """
+    log.info(f"Reranking {len(parent_docs)} courses using {CROSS_ENCODER_MODEL}")
+    
+    if not parent_docs:
+        return []
+
+    try:
+        model = CrossEncoder(CROSS_ENCODER_MODEL)
+    except Exception as e:
+        log.error(f"Failed to load CrossEncoder model: {e}")
+        return parent_docs  # Fallback to original order if model fails to load
+
+    # Create pairs of [query, document_text]
+    # We use course_name + description + skills as the document text for reranking
+    pairs = []
+    for doc in parent_docs:
+        doc_text = f"{doc.get('course_name', '')} {doc.get('description', '')} {doc.get('skills', '')}"
+        pairs.append([query, doc_text])
+
+    # Score pairs
+    scores = model.predict(pairs)
+
+    # Attach scores to docs and sort
+    for idx, doc in enumerate(parent_docs):
+        doc['_rerank_score'] = float(scores[idx])
+
+    reranked = sorted(parent_docs, key=lambda x: x['_rerank_score'], reverse=True)
+    
+    log.info("Reranking complete")
+    return reranked
+
+
+# ─────────────────────────────────────────
+# 7. Main hybrid search function
 # ─────────────────────────────────────────
 
 def hybrid_search(
@@ -304,26 +345,36 @@ def hybrid_search(
 
         # Step 1: Semantic search
         semantic_docs = semantic_search(query, embeddings, filters)
-        log.info(f"Semantic hits : {len(semantic_docs)}")
+        log.info(f"Semantic docs: {semantic_docs}")
+        semantic_names = [doc.metadata.get("course_name") or doc.metadata.get("course_id") for doc in semantic_docs]
+        log.info(f"Semantic hits : {len(semantic_docs)} -> {semantic_names}")
 
         # Step 2: Keyword search
         keyword_docs = keyword_search(query)
-        log.info(f"Keyword hits  : {len(keyword_docs)}")
+        keyword_names = [doc.metadata.get("course_name") or doc.metadata.get("course_id") for doc in keyword_docs]
+        log.info(f"Keyword hits  : {len(keyword_docs)} -> {keyword_names}")
 
         # Step 3: RRF fusion
         fused_docs = reciprocal_rank_fusion(semantic_docs, keyword_docs)
-        log.info(f"Fused hits    : {len(fused_docs)}")
+        fused_names = [doc.metadata.get("course_name") or doc.metadata.get("course_id") for doc in fused_docs]
+        log.info(f"Fused hits    : {len(fused_docs)} -> {fused_names}")
 
         # Step 4: Small-to-Big — pass filters for enforcement
         parent_docs = fetch_parent_docs(fused_docs, filters)   # ← pass filters
-        log.info(f"Final courses : {len(parent_docs)}")
+        parent_names = [doc.get("course_name") or doc.get("course_id") for doc in parent_docs]
+        log.info(f"Final courses (pre-rerank): {len(parent_docs)} -> {parent_names}")
 
         if not parent_docs:
             log.warning("Hybrid search returned no results")
             return []
 
+        # Step 5: Cross-Encoder Reranking
+        reranked_docs = rerank_courses(query, parent_docs)
+        reranked_names = [doc.get("course_name") or doc.get("course_id") for doc in reranked_docs]
+        log.info(f"Reranked courses : {len(reranked_docs)} -> {reranked_names}")
+
         log.info("Hybrid search complete")
-        return parent_docs
+        return reranked_docs
 
     except Exception as e:
         log.error(f"Hybrid search failed: {e}")

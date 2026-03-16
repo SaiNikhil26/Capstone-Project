@@ -15,3 +15,5 @@ presidio-analyzer
 presidio-anonymizer
 spacy
 httpx
+sentence-transformers
+torch

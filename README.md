@@ -7,7 +7,7 @@ An AI-powered discovery system that helps students navigate university courses e
 ## 🌟 Key Features
 
 - **Agentic Pipeline (Parallel Processing)**: Built with the OpenAI Agents SDK. Runs `SkillGapAgent` and `CareerAgent` in parallel, cutting logical latency in half.
-- **Hybrid Retrieval Framework**: Fuses Qdrant Dense Vector Search (semantic) with BM25 Keyword Search (exact token match) using Reciprocal Rank Fusion (RRF), ensuring no keyword or conceptual meaning is missed.
+- **Hybrid Retrieval Framework w/ Reranking**: Fuses Qdrant Dense Vector Search (semantic) with BM25 Keyword Search (exact token match) using Reciprocal Rank Fusion (RRF), capped off with **Cross-Encoder Reranking** (`ms-marco-MiniLM-L-12-v2`) to intelligently sort final candidates.
 - **Parent/Child Domain Chunking**: Courses are broken down into Identity, Skills, and Description "child" query variants, while the entire rich "parent" course object is returned to the agent without noisy embedding pollution.
 - **Zero-cost Deterministic Sequencer**: A stateless python-based module accurately sequence courses by difficulty levels without additional LLM API costs.
 - **Pre-Emptive Security Guardrails**: 
@@ -16,7 +16,7 @@ An AI-powered discovery system that helps students navigate university courses e
 - **Modern Microservice Architecture**: 
   - FastAPI **API Gateway** acting as an intermediate decoupling surface processing timeouts.
   - Dedicated **FastAPI Microservice** orchestrating AI Logic and Database calls.
-  - **React + Vite** frontend implementing a clean, modular glassmorphism dark theme.
+  - **React + Vite** frontend implementing a clean, modular minimalist light theme.
 
 ---
 
