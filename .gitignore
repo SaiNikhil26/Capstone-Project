@@ -1,0 +1,24 @@
+# Environment
+.env
+
+# Storage — auto-generated, never commit
+storage/chroma_db/
+storage/bm25_index.pkl
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+
+# add this line to .gitignore
+logs/

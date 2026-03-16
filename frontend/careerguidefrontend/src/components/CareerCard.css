@@ -1,0 +1,40 @@
+.career-card {
+  margin-bottom: 1.5rem;
+  border-top: 4px solid var(--accent-blue);
+}
+
+.career-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.career-header h2 {
+  font-size: 1.3rem;
+}
+
+.career-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.track-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-weight: 600;
+  width: fit-content;
+}
+
+.alignment-reason {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
