@@ -22,7 +22,7 @@ An AI-powered discovery system that helps students navigate university courses e
 
 The system is organized into a layered, block-wise structure. 
 
-![Architecture Diagram](Artifacts/Architecture%20Diagram.png)
+![Architecture Diagram](Artifacts/Architecture_Diagram.png)
 
 You can view the full detailed breakdown in **[Artifacts/Architecture Diagram.png](Artifacts/Architecture%20Diagram.png)**.
 
