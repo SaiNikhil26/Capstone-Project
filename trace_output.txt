@@ -1,0 +1,174 @@
+================================================================================
+FULL PIPELINE TRACE FOR QUERY: 'I want to learn Deep Learning using Python, but I am a beginner.'
+FILTERS: None
+================================================================================
+
+--- [STAGE 1: GUARDRAILS] ---
+Input Query: I want to learn Deep Learning using Python, but I am a beginner.
+Cleaned/Redacted Query: I want to learn Deep Learning using Python, but I am a beginner.
+
+--- [STAGE 2: INTENT ANALYSIS] ---
+[2.1] Extracting Intent...
+{
+  "topic": "Deep Learning",
+  "level": "Beginner",
+  "career_goal": "not specified",
+  "keywords": [
+    "Deep Learning",
+    "Python",
+    "beginner",
+    "neural networks",
+    "ML"
+  ],
+  "search_query": "Deep Learning Python beginner neural networks"
+}
+Optimized Search Query: Deep Learning Python beginner neural networks
+
+--- [STAGE 3: RETRIEVAL COMPONENTS] ---
+[3.1] Vector Retrieval (Semantic) Hits:
+  1. Neural Networks and Deep Learning
+  2. Neural Networks and Deep Learning
+  3. Advanced Learning Algorithms
+  4. Advanced Learning Algorithms
+  5. AI For Everyone
+  6. AI For Everyone
+  7. Linear Algebra for Machine Learning and Data Science
+  8. Linear Algebra for Machine Learning and Data Science
+  9. Generative AI for Everyone
+  10. Generative AI for Everyone
+  11. TensorFlow: Advanced Techniques
+  12. Chunk ID: 115cd8af-b42e-490e-bd34-f09d44210179
+  13. Calculus for Machine Learning and Data Science
+  14. Calculus for Machine Learning and Data Science
+  15. Neuroscience and Neuroimaging
+  16. Chunk ID: 877b1555-ccd1-457c-a2ab-ec94efd724ad
+  17. Deep Learning
+  18. Deep Learning
+  19. Convolutional Neural Networks in TensorFlow
+  20. Convolutional Neural Networks in TensorFlow
+
+[3.2] Keyword Retrieval (BM25) Hits:
+  1. Natural Language Processing with Attention Models
+  2. Neuroscience and Neuroimaging
+  3. AI for Medicine
+  4. Sequences, Time Series and Prediction
+  5. IBM AI Engineering
+  6. Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization
+  7. Advanced Learning Algorithms
+  8. Akamai Network Engineering
+  9. Mathematics for Machine Learning and Data Science
+  10. Unsupervised Learning, Recommenders, Reinforcement Learning
+  11. AI for Good
+  12. Microsoft Azure Data Scientist Associate (DP-100)
+  13. Introduction to Generative AI
+  14. Machine Learning
+  15. Deep Neural Networks with PyTorch
+  16. Supervised Machine Learning: Regression and Classification
+  17. Data Visualization with Python
+  18. Deep Learning
+  19. AI For Everyone
+  20. IBM Machine Learning
+
+[3.3] RRF Fusion (Combined Ranks):
+  1. Advanced Learning Algorithms (ID: C080)
+  2. Neuroscience and Neuroimaging (ID: C344)
+  3. AI For Everyone (ID: C047)
+  4. Deep Learning (ID: C018)
+  5. Natural Language Processing with Attention Models (ID: C283)
+  6. Neural Networks and Deep Learning (ID: C090)
+  7. AI for Medicine (ID: C365)
+  8. Sequences, Time Series and Prediction (ID: C353)
+  9. IBM AI Engineering (ID: C036)
+  10. Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization (ID: C164)
+  11. Linear Algebra for Machine Learning and Data Science (ID: C123)
+  12. Akamai Network Engineering (ID: C361)
+  13. Generative AI for Everyone (ID: C035)
+  14. Mathematics for Machine Learning and Data Science (ID: C044)
+  15. Unsupervised Learning, Recommenders, Reinforcement Learning (ID: C141)
+  16. TensorFlow: Advanced Techniques (ID: C366)
+  17. AI for Good (ID: C167)
+  18. Microsoft Azure Data Scientist Associate (DP-100) (ID: C243)
+  19. Calculus for Machine Learning and Data Science (ID: C223)
+  20. Introduction to Generative AI (ID: C109)
+  21. Machine Learning (ID: C008)
+  22. Deep Neural Networks with PyTorch (ID: C277)
+  23. Supervised Machine Learning: Regression and Classification (ID: C041)
+  24. Data Visualization with Python (ID: C275)
+  25. Convolutional Neural Networks in TensorFlow (ID: C260)
+  26. IBM Machine Learning (ID: C086)
+
+[3.4] Parent Fetch & UI Filter Results (Pre-Rerank):
+  1. Advanced Learning Algorithms
+  2. Neuroscience and Neuroimaging
+  3. AI For Everyone
+  4. Deep Learning
+  5. Sequences, Time Series and Prediction
+  6. IBM AI Engineering
+  7. Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization
+  8. Generative AI for Everyone
+  9. Mathematics for Machine Learning and Data Science
+  10. Unsupervised Learning, Recommenders, Reinforcement Learning
+
+[3.5] Cross-Encoder Reranker (MiniLM-L-12) Final Sorted List:
+  1. [Score:  4.9675] Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization
+  2. [Score:  3.8360] Deep Learning
+  3. [Score:  2.2551] IBM AI Engineering
+  4. [Score:  2.2474] Advanced Learning Algorithms
+  5. [Score: -2.4283] Unsupervised Learning, Recommenders, Reinforcement Learning
+  6. [Score: -3.2140] Sequences, Time Series and Prediction
+  7. [Score: -3.6790] AI For Everyone
+  8. [Score: -4.2691] Mathematics for Machine Learning and Data Science
+  9. [Score: -11.1776] Neuroscience and Neuroimaging
+  10. [Score: -11.3110] Generative AI for Everyone
+
+--- [STAGE 4: AGENT REASONING] ---
+[4.1] Skill Gap Agent Result:
+{
+  "has_gaps": true,
+  "missing_skills": [
+    "Applied Machine Learning",
+    "Deep Learning",
+    "Machine Learning",
+    "Artificial Neural Networks",
+    "Statistics",
+    "R Programming"
+  ],
+  "foundational_topics": [
+    "intro to Python",
+    "basics of statistics",
+    "fundamentals of machine learning",
+    "deep learning introduction",
+    "neuroscience basics"
+  ]
+}
+
+[4.2] Career Agent Result:
+{
+  "career_track": "General Tech Skills",
+  "top_course_ids": [
+    "C047",
+    "C044",
+    "C018",
+    "C080",
+    "C035"
+  ],
+  "alignment_reason": "These courses cover a broad range of essential tech skills suitable for general tech careers, emphasizing machine learning, AI understanding, and foundational mathematics."
+}
+
+[4.3] Sequencer Result (Themed Path):
+  - Foundational Understandings: AI For Everyone, Generative AI for Everyone
+  - Mathematical Foundations: Mathematics for Machine Learning and Data Science
+  - Introduction to Machine Learning: Advanced Learning Algorithms, Unsupervised Learning, Recommenders, Reinforcement Learning
+  - Deep Learning Essentials: Deep Learning, IBM AI Engineering
+  - Advanced Techniques and Applications: Improving Deep Neural Networks: Hyperparameter Tuning, Regularization and Optimization, Sequences, Time Series and Prediction, Neuroscience and Neuroimaging
+
+[4.4] Learning Advisor Agent Result:
+Summary: Embarking on your journey into Deep Learning is exciting and full of potential. Starting from the fundamentals will help build a strong base, especially in applied machine learning and statistics. As you grow your skills, you'll explore various AI concepts, preparing you for a wide range of tech opportunities.
+Tips:
+  * Start with hands-on projects early to apply what you learn.
+  * Familiarize yourself with basic statistics and R programming.
+  * Explore AI concepts through interactive tutorials and videos.
+
+================================================================================
+END OF TRACE
+================================================================================

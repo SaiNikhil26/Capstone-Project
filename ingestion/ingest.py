@@ -253,7 +253,7 @@ def store_in_qdrant(
                     vector=vector,
                     payload={
                         "page_content": doc.page_content,
-                        **doc.metadata          # ← all metadata fields as payload
+                        "metadata": doc.metadata          # ← LangChain expects nested metadata
                     }
                 ))
 

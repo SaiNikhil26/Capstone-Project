@@ -345,8 +345,14 @@ def hybrid_search(
 
         # Step 1: Semantic search
         semantic_docs = semantic_search(query, embeddings, filters)
-        log.info(f"Semantic docs: {semantic_docs}")
-        semantic_names = [doc.metadata.get("course_name") or doc.metadata.get("course_id") for doc in semantic_docs]
+        semantic_names = []
+        for doc in semantic_docs:
+            name = doc.metadata.get("course_name") or doc.metadata.get("course_id")
+            if not name and "Course: " in doc.page_content:
+                 # Fallback: extract name from the 'Course: ...' string in identity chunks
+                 name = doc.page_content.split("by")[0].replace("Course:", "").strip()
+            semantic_names.append(name or "Unknown Course")
+            
         log.info(f"Semantic hits : {len(semantic_docs)} -> {semantic_names}")
 
         # Step 2: Keyword search

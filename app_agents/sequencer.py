@@ -2,41 +2,27 @@
 app_agents/sequencer.py
 
 CourseSequencer — orders retrieved courses into a structured
-learning path using rule-based difficulty sorting.
+learning path using LLM-based reasoning.
 
-No LLM required — pure logic.
-
-Difficulty order: Beginner → Intermediate → Advanced → Mixed → Unknown
+Orders courses by conceptual dependency and creates themed milestones.
 """
 
 from __future__ import annotations
 
+import json
+import time
 import sys
 import os
+
+from agents import Agent, Runner
 from pydantic import BaseModel
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from config import LLM_MODEL
 from logger import get_logger
+from app_agents.tools import report_learning_sequence
 
 log = get_logger("sequencer")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Difficulty sort order
-# ─────────────────────────────────────────────────────────────────────────────
-
-_DIFFICULTY_ORDER: dict[str, int] = {
-    "beginner":     0,
-    "intermediate": 1,
-    "advanced":     2,
-    "mixed":        3,
-}
-
-_STAGE_LABELS: dict[int, str] = {
-    0: "Stage 1 — Foundations",
-    1: "Stage 2 — Core Skills",
-    2: "Stage 3 — Advanced Topics",
-    3: "Stage 4 — Specialisation",
-}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -54,63 +40,107 @@ class LearningPath(BaseModel):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Sequencer
+# Agent definition
+# ─────────────────────────────────────────────────────────────────────────────
+
+sequencer_agent = Agent(
+    name="SequencerAgent",
+    model=LLM_MODEL,
+    instructions="""
+You are an academic curriculum designer. Your job is to take a list of 10 courses and organize them into a logical, multi-stage learning path.
+
+You will receive:
+  - The student's career goal.
+  - A list of recommended courses with their IDs, difficulties, and skills.
+
+─── Rules ───────────────────────────────────────────────────────
+1.  **Logical Flow**: Order courses by conceptual dependency (e.g., learn Python before learn Data Science with Python).
+2.  **Themed Stages**: Group courses into 2-4 stages. 
+3.  **Creative Naming**: Instead of "Stage 1", use themed names like "Foundational Tools", "Core Machine Learning", or "Advanced Specialisation".
+4.  **Final Top 5**: Focus the sequence on the most relevant 3-5 courses, but maintain the logical order for all 10 if they are distinct.
+5.  **Output**: Always call report_learning_sequence EXACTLY ONCE.
+
+─── Metadata Sensitivity ────────────────────────────────────────
+Use the 'difficulty' and 'skills' fields to inform your ordering. Even if two courses are 'Beginner', one might naturally come before another.
+─────────────────────────────────────────────────────────────────
+Always call report_learning_sequence. Never respond in plain text.
+""",
+    tools=[report_learning_sequence],
+)
+
+log.info("[Agent:created] SequencerAgent | model=%s", LLM_MODEL)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Class wrapper
 # ─────────────────────────────────────────────────────────────────────────────
 
 class CourseSequencer:
     """
     Usage:
         seq = CourseSequencer()
-        path: LearningPath = seq.sequence(courses)
+        path: LearningPath = await seq.sequence(career_goal, courses)
     """
 
     def __init__(self) -> None:
-        log.debug("[CourseSequencer] initialised")
+        log.debug("[CourseSequencer] initialised (Agentic)")
 
-    def sequence(self, courses: list[dict]) -> LearningPath:
-        """
-        Sort courses by difficulty and group into named stages.
+    async def sequence(self, career_goal: str, courses: list[dict]) -> LearningPath:
+        log.info("[CourseSequencer:sequence] START | goal=%r | courses=%d", career_goal, len(courses))
 
-        Args:
-            courses: List of slim course dicts (must have 'difficulty' key).
+        prompt = self._build_prompt(career_goal, courses)
 
-        Returns:
-            LearningPath with stages and a flat ordered name list.
-        """
-        log.info("[CourseSequencer:sequence] START | courses=%d", len(courses))
+        t0 = time.perf_counter()
+        result = await Runner.run(sequencer_agent, prompt)
+        elapsed = time.perf_counter() - t0
 
-        # Sort by difficulty rank, then by rating descending within same level
-        def _sort_key(c: dict):
-            diff = (c.get("difficulty") or "").lower()
-            rank = _DIFFICULTY_ORDER.get(diff, 4)
-            rating = float(c.get("rating") or 0)
-            return (rank, -rating)
+        log.info("[CourseSequencer:sequence] finished | elapsed=%.2fs", elapsed)
 
-        sorted_courses = sorted(courses, key=_sort_key)
+        path_data = self._extract_result(result, courses)
+        return path_data
 
-        # Group into stages
-        stage_buckets: dict[int, list[dict]] = {}
-        for c in sorted_courses:
-            diff = (c.get("difficulty") or "").lower()
-            rank = _DIFFICULTY_ORDER.get(diff, 4)
-            stage_buckets.setdefault(rank, []).append(c)
+    def _build_prompt(self, goal: str, courses: list[dict]) -> str:
+        lines = [f"Student goal: {goal}\n", "Courses to sequence:"]
+        for i, c in enumerate(courses, 1):
+            lines.append(
+                f"  - [{c.get('course_id')}] {c.get('course_name')} "
+                f"({c.get('difficulty')}) — Skills: {c.get('skills')}"
+            )
+        lines.append("\nCall report_learning_sequence with your path design.")
+        return "\n".join(lines)
 
-        stages: list[LearningPathStage] = []
-        for rank in sorted(stage_buckets):
-            label = _STAGE_LABELS.get(rank, f"Stage {rank + 1}")
-            stages.append(LearningPathStage(
-                stage=label,
-                courses=stage_buckets[rank],
-            ))
+    def _extract_result(self, result, original_courses: list[dict]) -> LearningPath:
+        # Build ID lookup
+        course_map = {c.get("course_id"): c for c in original_courses}
+        
+        for item in result.new_items:
+            if type(item).__name__ == "ToolCallOutputItem":
+                parsed = self._safe_json(getattr(item, "output", ""))
+                if parsed and "stages" in parsed:
+                    stages = []
+                    ordered_names = []
+                    
+                    for s in parsed["stages"]:
+                        stage_name = s.get("stage", "Untitled Stage")
+                        ids = s.get("course_ids", [])
+                        
+                        # Map IDs back to full course dicts
+                        stage_courses = [course_map[cid] for cid in ids if cid in course_map]
+                        
+                        if stage_courses:
+                            stages.append(LearningPathStage(
+                                stage=stage_name,
+                                courses=stage_courses
+                            ))
+                            ordered_names.extend([c.get("course_name") for c in stage_courses])
+                    
+                    return LearningPath(stages=stages, ordered_names=ordered_names)
 
-        ordered_names = [
-            c.get("course_name", "Unknown")
-            for stage in stages
-            for c in stage.courses
-        ]
+        log.warning("[CourseSequencer] tool not called — returning empty fallback")
+        return LearningPath(stages=[], ordered_names=[])
 
-        log.info(
-            "[CourseSequencer:sequence] END | stages=%d | total=%d",
-            len(stages), len(ordered_names),
-        )
-        return LearningPath(stages=stages, ordered_names=ordered_names)
+    def _safe_json(self, raw) -> dict | None:
+        try:
+            return json.loads(str(raw))
+        except Exception:
+            return None

@@ -15,7 +15,8 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Optional
+from typing import Optional, Any
+from pydantic import BaseModel
 
 from agents import function_tool
 
@@ -264,6 +265,34 @@ def report_recommendation(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Tool 6 — report_learning_sequence
+# ─────────────────────────────────────────────────────────────────────────────
+
+class StageItem(BaseModel):
+    stage:      str
+    course_ids: list[str]
+
+@function_tool
+def report_learning_sequence(
+    stages: list[StageItem],
+) -> str:
+    """
+    Record the structured multi-stage learning path. 
+    Call this tool EXACTLY ONCE after ordering the courses.
+
+    Args:
+        stages: A list of stage objects. Each object MUST have:
+                - "stage": A creative, themed name for this milestone (str).
+                - "course_ids": An ordered list of course_ids in this stage (list[str]).
+                Example: [{"stage": "Python Foundations", "course_ids": ["C001", "C002"]}]
+    """
+    log.info("[report_learning_sequence] stages=%d", len(stages))
+    # Convert Pydantic models back to serializable dicts
+    serializable_stages = [s.model_dump() for s in stages]
+    return json.dumps({"stages": serializable_stages})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Registry log
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -275,5 +304,6 @@ log.info(
         report_skill_gap.name,
         report_career_alignment.name,
         report_recommendation.name,
+        report_learning_sequence.name,
     ],
 )

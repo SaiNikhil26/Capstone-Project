@@ -108,8 +108,8 @@ Both agents receive the same input (the top 10 courses) and produce independent 
 **Why not parallel with IntentAgent?**
 The IntentAgent must complete first because its output (the 10 retrieved courses) is the input to all Step 4 agents. Sequential dependency here is unavoidable.
 
-**CourseSequencer is sync:**
-Pure Python sorting — no LLM call, no I/O wait. It runs inside the same event loop iteration at effectively zero cost.
+**SequencerAgent is async:**
+It performs a separate LLM reasoning call to design the themed pathway. While it adds ~2s of latency, it significantly improves the pedagogical quality and career-relevance of the course ordering.
 
 ---
 
@@ -176,17 +176,17 @@ Separation of concerns. Routes should not contain business logic. Logic should n
 
 ---
 
-## 9. Course Sequencing — Rule-Based over LLM
+## 9. Course Sequencing — SequencerAgent (Agentic)
 
-**Decision:** Order courses by difficulty using **Python sorting** (Beginner → Intermediate → Advanced → Mixed), not an LLM.
+**Decision:** Replace rule-based difficulty-sorting with an **LLM-based SequencerAgent** for intelligent multi-course ordering.
 
-**Why?**
-Difficulty ordering is deterministic — there is no ambiguity. Routing this through an LLM would:
-- Add ~2–3s of latency
-- Cost tokens
-- Risk non-deterministic ordering
+### Why move beyond difficulty-sorting?
+A static sort by "Beginner -> Advanced" is too rigid. Some "Beginner" courses conceptually follow other "Beginner" courses (e.g., *Programming for Data Science* should precede *Basic Machine Learning*). An LLM can reason about these conceptual dependencies and create logical, themed milestones.
 
-Within the same difficulty tier, courses are sorted by `rating` descending — highest-rated beginner courses appear first.
+### Key Capabilities
+*   **Themed Milestones**: The agent generates creative, context-aware stage names (e.g., "Foundational Tools", "Core AI Concepts").
+*   **Conceptual Dependency Reasoning**: It uses the `skills` and `description` fields to build a path that makes pedagogical sense.
+*   **Career-Driven Priority**: It uses the student's career goal to prioritize the order of specialized vs. general courses.
 
 ---
 

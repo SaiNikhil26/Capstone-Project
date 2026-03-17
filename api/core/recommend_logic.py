@@ -79,8 +79,12 @@ async def generate_recommendations(req: RecommendRequest) -> RecommendResponse:
         log.error("[recommend_logic] Parallel agent step failed: %s", exc)
         raise HTTPException(status_code=500, detail=f"Analysis agent error: {exc}")
 
-    # Sequencer (sync)
-    learning_path = sequencer.sequence(courses)
+    # Sequencer (async)
+    try:
+        learning_path = await sequencer.sequence(intent.career_goal, courses)
+    except Exception as exc:
+        log.error("[recommend_logic] CourseSequencer failed: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Sequencer agent error: {exc}")
 
     # 4. Advisor
     try:
