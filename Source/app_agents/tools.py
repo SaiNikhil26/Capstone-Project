@@ -63,6 +63,7 @@ def extract_intent(
     topic:        str,
     level:        str,
     career_goal:  str,
+    known_skills: list[str],
     keywords:     list[str],
     search_query: str,
 ) -> str:
@@ -77,6 +78,9 @@ def extract_intent(
                       "Beginner", "Intermediate", "Advanced", or "Any".
         career_goal:  Career path or role the student aspires to
                       (e.g. "data scientist"). Use "not specified" if unclear.
+        known_skills: List of technical skills the student explicitly mentions
+                      they already know (e.g. ["Python", "statistics"]).
+                      Empty list if they don't mention any.
         keywords:     3-6 specific technical or domain keywords that
                       sharpen retrieval accuracy.
         search_query: A concise search string (max 15 words) combining
@@ -84,14 +88,15 @@ def extract_intent(
                       Write for a search engine, not prose.
     """
     log.info(
-        "[extract_intent] topic=%r | level=%r | career_goal=%r | keywords=%s",
-        topic, level, career_goal, keywords,
+        "[extract_intent] topic=%r | level=%r | career_goal=%r | known=%s | keywords=%s",
+        topic, level, career_goal, known_skills, keywords,
     )
 
     intent = {
         "topic":        topic,
         "level":        level,
         "career_goal":  career_goal,
+        "known_skills": known_skills,
         "keywords":     keywords,
         "search_query": search_query,
     }

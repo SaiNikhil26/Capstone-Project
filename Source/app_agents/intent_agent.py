@@ -46,6 +46,7 @@ class ParsedIntent(BaseModel):
     topic:        str        # Main subject area   e.g. "machine learning"
     level:        str        # Difficulty hint     e.g. "Beginner" | "Intermediate" | "Advanced" | "Any"
     career_goal:  str        # Career aspiration   e.g. "data scientist" | "not specified"
+    known_skills: list[str]  # Skills the student already knows
     keywords:     list[str]  # Key terms to sharpen retrieval
     search_query: str        # Optimised query string passed to hybrid_search
 
@@ -86,6 +87,10 @@ Analyse the student's query and extract:
 
   career_goal   Role the student mentions: "data scientist", "AI engineer".
                 Use "not specified" if absent.
+
+  known_skills  Technical skills the student explicitly says they ALREADY know.
+                Ensure you capture ALL of these. e.g. ["Python", "statistics"].
+                Use [] if none mentioned.
 
   keywords      3-6 specific technical terms that sharpen retrieval.
 
@@ -247,6 +252,7 @@ class IntentAgent:
                 topic="general",
                 level="Any",
                 career_goal="not specified",
+                known_skills=[],
                 keywords=[],
                 search_query=result.final_output or "general courses",
             )

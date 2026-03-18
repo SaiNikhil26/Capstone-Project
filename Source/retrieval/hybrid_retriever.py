@@ -344,16 +344,21 @@ def hybrid_search(
         embeddings = OpenAIEmbeddings(model=EMBEDDING_MODEL)
 
         # Step 1: Semantic search
-        semantic_docs = semantic_search(query, embeddings, filters)
+        semantic_docs = []
         semantic_names = []
-        for doc in semantic_docs:
-            name = doc.metadata.get("course_name") or doc.metadata.get("course_id")
-            if not name and "Course: " in doc.page_content:
-                 # Fallback: extract name from the 'Course: ...' string in identity chunks
-                 name = doc.page_content.split("by")[0].replace("Course:", "").strip()
-            semantic_names.append(name or "Unknown Course")
-            
-        log.info(f"Semantic hits : {len(semantic_docs)} -> {semantic_names}")
+        try:
+            semantic_docs = semantic_search(query, embeddings, filters)
+            for doc in semantic_docs:
+                name = doc.metadata.get("course_name") or doc.metadata.get("course_id")
+                if not name and "Course: " in doc.page_content:
+                     # Fallback: extract name from the 'Course: ...' string in identity chunks
+                     name = doc.page_content.split("by")[0].replace("Course:", "").strip()
+                semantic_names.append(name or "Unknown Course")
+                
+            log.info(f"Semantic hits : {len(semantic_docs)} -> {semantic_names}")
+        except Exception as e:
+            log.warning(f"Semantic search failed (likely API error: {str(e)[:100]}). Falling back to pure keyword search.")
+
 
         # Step 2: Keyword search
         keyword_docs = keyword_search(query)

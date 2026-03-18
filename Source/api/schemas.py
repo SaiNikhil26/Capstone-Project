@@ -36,6 +36,7 @@ class IntentSchema(BaseModel):
     topic:        str
     level:        str
     career_goal:  str
+    known_skills: list[str]
     keywords:     list[str]
     search_query: str
 
