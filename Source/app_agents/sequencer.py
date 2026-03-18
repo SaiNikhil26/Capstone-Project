@@ -104,7 +104,7 @@ class CourseSequencer:
         for i, c in enumerate(courses, 1):
             lines.append(
                 f"  - [{c.get('course_id')}] {c.get('course_name')} "
-                f"({c.get('difficulty')}) — Skills: {c.get('skills')}"
+                f"({c.get('difficulty')}) — Skills: {c.get('skills')} - Description: {c.get('description')}"
             )
         lines.append("\nCall report_learning_sequence with your path design.")
         return "\n".join(lines)

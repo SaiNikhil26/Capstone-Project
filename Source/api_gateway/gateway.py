@@ -35,7 +35,7 @@ log = get_logger("api_gateway")
 # ─────────────────────────────────────────────────────────────────────────────
 
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
-TIMEOUT_SECONDS = 120   # agent pipeline can take ~30-60s
+TIMEOUT_SECONDS = 300   # increased to 5 minutes per user request
 
 # ─────────────────────────────────────────────────────────────────────────────
 # App
