@@ -22,9 +22,9 @@ An AI-powered discovery system that helps students navigate university courses e
 
 The system is organized into a layered, block-wise structure. 
 
-![Architecture Diagram](Artifacts/Architecture_Diagram.png)
+![Architecture Diagram](Architecture_Diagram.png)
 
-You can view the full detailed breakdown in **[Artifacts/Architecture Diagram.png](Artifacts/Architecture%20Diagram.png)**.
+You can view the full detailed breakdown in **[Architecture_Diagram.png](Architecture_Diagram.png)**.
 
 ### System Layers
 
@@ -40,7 +40,7 @@ You can view the full detailed breakdown in **[Artifacts/Architecture Diagram.pn
     -   *LearningAdvisorAgent*: Summarizes and structures actionable human-friendly tips.
 6.  **Retrieval**: Qdrant Vector DB & BM25 Pickle Index + Cross-Encoder Reranking.
 
-> 📚 For a file-by-file breakdown, refer to the **[Artifacts/CODE_STRUCTURE.md](Artifacts/CODE_STRUCTURE.md)** and the design rationale in **[Artifacts/design_decisions.md](Artifacts/design_decisions.md)**.
+> 📚 For a file-by-file breakdown, refer to the **[CODE_STRUCTURE.md](CODE_STRUCTURE.md)** and the design rationale in **[design_decisions.md](design_decisions.md)**.
 
 ---
 
@@ -56,7 +56,8 @@ You can view the full detailed breakdown in **[Artifacts/Architecture Diagram.pn
 Clone the repo, install python packages, and install UI packages:
 
 ```bash
-# Backend python dependencies
+# Backend python dependencies (inside Source/)
+cd Source
 pip install -r requirements.txt
 
 # Download Spacy model for Presidio PII Detection
@@ -65,7 +66,7 @@ python -m spacy download en_core_web_lg
 # Install frontend dependencies
 cd frontend/careerguidefrontend
 npm install
-cd ../..
+cd ../../..
 ```
 
 ### 2. Configuration
@@ -82,9 +83,9 @@ FRONTEND_URL=http://localhost:5173
 ### 3. Data Ingestion
 You must initialize the Vector & Keyword databases before querying.
 ```bash
-python ingestion/ingest.py
+python Source/ingestion/ingest.py
 ```
-*This will parse `data/coursera_courses.csv`, chunk documents natively into parent/child formats, embed them with OpenAI text-embedding-3-small, upsert to `storage/qdrant_db`, and pickle the `storage/bm25_index.pkl` keyword store.*
+*This will parse `Source/data/coursera_courses.csv`, chunk documents natively into parent/child formats, embed them with OpenAI text-embedding-3-small, upsert to `Source/storage/qdrant_db`, and pickle the `Source/storage/bm25_index.pkl` keyword store.*
 
 ---
 
@@ -94,17 +95,19 @@ To start the full environment, you will need **3 terminal tabs**.
 
 **Terminal 1: Start the Backend Microservice (Port 8000)**
 ```bash
+cd Source
 uvicorn api.main:app --port 8000 --reload
 ```
 
 **Terminal 2: Start the API Gateway (Port 8080)**
 ```bash
+cd Source
 uvicorn api_gateway.gateway:app --port 8080 --reload
 ```
 
 **Terminal 3: Start the UI / Frontend (Port 5173)**
 ```bash
-cd frontend/careerguidefrontend
+cd Source/frontend/careerguidefrontend
 npm run dev
 ```
 
@@ -116,10 +119,10 @@ Finally, open **`http://localhost:5173`** in your browser.
 
 Standalone test scripts are located in the `/test` directory. Use them to debug specific nodes in the graph in isolation.
 
-- **Check Qdrant DB points/connections**: `python test/check_qdrant.py`
-- **Test Hybrid Retriever & Filters**: `python test/test_retriver.py`
-- **Test Guardrails (PII & Semantic Intent)**: `python test/test_guardrails.py`
-- **Test IntentAgent (Structured Extraction)**: `python test/test_intent_agent.py`
+- **Check Qdrant DB points/connections**: `python Source/test/check_qdrant.py`
+- **Test Hybrid Retriever & Filters**: `python Source/test/test_retriver.py`
+- **Test Guardrails (PII & Semantic Intent)**: `python Source/test/test_guardrails.py`
+- **Test IntentAgent (Structured Extraction)**: `python Source/test/test_intent_agent.py`
 
 ---
 

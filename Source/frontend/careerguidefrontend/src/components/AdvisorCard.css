@@ -1,0 +1,125 @@
+.advisor-card {
+  margin-top: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-left: 4px solid var(--accent-purple);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+.advisor-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.advisor-icon-wrapper {
+  background: #f3e8ff; /* Purple 100 */
+  color: var(--accent-purple);
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.advisor-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+}
+
+.advisor-summary {
+  position: relative;
+  background: var(--bg-secondary);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
+}
+
+.quote-mark {
+  display: none; /* Removing floating quote for minimalist look */
+}
+
+.split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .split-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tips-section h3, .gaps-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--card-border);
+  padding-bottom: 0.5rem;
+}
+
+.tips-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tips-list li {
+  position: relative;
+  padding-left: 1.25rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.tips-list li::before {
+  content: "•";
+  color: var(--accent-teal);
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.gap-tag {
+  background: #fff1f2; /* Rose 50 */
+  color: var(--accent-rose);
+  border: 1px solid #fecdd3; /* Rose 200 */
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.foundational-topics h4 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.topic-tag {
+  background: #eff6ff; /* Blue 50 */
+  color: var(--accent-blue);
+  border: 1px solid #bfdbfe; /* Blue 200 */
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+}
