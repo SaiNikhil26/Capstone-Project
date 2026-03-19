@@ -22,6 +22,7 @@ from api.schemas import (
 )
 from api.utils.helpers import to_course_schema
 from guardrails.validator import GuardrailValidator
+from api.utils.token_utils import count_tokens, log_token_run
 
 from app_agents.intent_agent    import IntentAgent
 from app_agents.skill_gap_agent import SkillGapAgent
@@ -123,10 +124,21 @@ async def generate_recommendations(req: RecommendRequest) -> RecommendResponse:
             alignment_reason=career_result.alignment_reason,
         )
 
-        elapsed = time.perf_counter() - t_start
-        log.info("[recommend_logic] DONE | elapsed=%.2fs", elapsed)
+        # 5. Log Token Usage
+        try:
+            elapsed = time.perf_counter() - t_start
+            agents_usage = [
+                {"agent": "Embeddings", "input": count_tokens(clean_query, "text-embedding-3-small"), "output": 0, "model": "text-embedding-3-small"},
+                intent_result.usage,
+                gap_result.usage,
+                career_result.usage,
+                rec_result.usage
+            ]
+            log_token_run(clean_query, agents_usage, elapsed)
+        except Exception as e:
+            log.warning("[recommend_logic] Token logging failed: %s", e)
 
-        # 5. Build full response
+        # 6. Build full response
         return RecommendResponse(
             intent=IntentSchema(**intent.model_dump()),
             courses=[to_course_schema(c) for c in courses],

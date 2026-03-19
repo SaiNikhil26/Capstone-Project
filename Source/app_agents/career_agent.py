@@ -22,6 +22,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import LLM_MODEL
 from logger import get_logger
 from app_agents.tools import report_career_alignment
+from api.utils.token_utils import count_tokens
 
 log = get_logger("career_agent")
 
@@ -34,6 +35,7 @@ class CareerAlignmentResult(BaseModel):
     career_track:     str
     top_course_ids:   list[str]
     alignment_reason: str
+    usage:            dict = {}   # {input, output, model}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -93,7 +95,16 @@ class CareerAgent:
         log.info("[CareerAgent:align] finished | elapsed=%.2fs", elapsed)
 
         alignment = self._extract_result(result)
-        log.info("[CareerAgent:align] END | track=%r | top=%s", alignment.career_track, alignment.top_course_ids)
+
+        # Estimate tokens
+        input_tokens  = count_tokens(prompt, LLM_MODEL)
+        output_tokens = count_tokens(result.final_output or str(alignment.model_dump()), LLM_MODEL)
+        alignment.usage = {"agent": "CareerAgent", "input": input_tokens, "output": output_tokens, "model": LLM_MODEL}
+
+        log.info(
+            "[CareerAgent:align] END | track=%r | top=%s | tokens=%d",
+            alignment.career_track, alignment.top_course_ids, input_tokens + output_tokens
+        )
         return alignment
 
     def _build_prompt(self, career_goal: str, courses: list[dict]) -> str:

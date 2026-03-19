@@ -33,6 +33,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import LLM_MODEL
 from logger import get_logger
 from app_agents.tools import extract_intent, search_courses
+from api.utils.token_utils import count_tokens
 
 log = get_logger("intent_agent")
 
@@ -55,6 +56,7 @@ class IntentResult(BaseModel):
     """Combined output returned by IntentAgent.parse()."""
     intent:  ParsedIntent
     courses: list[dict]      # Slimmed course records from hybrid_search
+    usage:   dict            # {input, output, model}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -173,12 +175,20 @@ class IntentAgent:
 
         intent, courses = self._extract_results(result)
 
+        # Estimate tokens
+        input_tokens  = count_tokens(prompt, LLM_MODEL)
+        output_tokens = count_tokens(result.final_output or str(intent.model_dump()), LLM_MODEL)
+
         log.info(
-            "[IntentAgent:parse] END | topic=%r | level=%r | courses=%d",
-            intent.topic, intent.level, len(courses),
+            "[IntentAgent:parse] END | topic=%r | level=%r | courses=%d | tokens=%d",
+            intent.topic, intent.level, len(courses), input_tokens + output_tokens
         )
 
-        return IntentResult(intent=intent, courses=courses)
+        return IntentResult(
+            intent=intent, 
+            courses=courses,
+            usage={"agent": "IntentAgent", "input": input_tokens, "output": output_tokens, "model": LLM_MODEL}
+        )
 
     # ── Prompt builder ────────────────────────────────────────────────────────
 

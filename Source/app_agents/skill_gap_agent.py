@@ -22,6 +22,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import LLM_MODEL
 from logger import get_logger
 from app_agents.tools import report_skill_gap
+from api.utils.token_utils import count_tokens
 
 log = get_logger("skill_gap_agent")
 
@@ -34,6 +35,7 @@ class SkillGapResult(BaseModel):
     has_gaps:            bool
     missing_skills:      list[str]
     foundational_topics: list[str]   # used to search for bridging courses
+    usage:               dict = {}   # {input, output, model}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -104,7 +106,16 @@ class SkillGapAgent:
         log.info("[SkillGapAgent:analyse] finished | elapsed=%.2fs", elapsed)
 
         gap = self._extract_result(result)
-        log.info("[SkillGapAgent:analyse] END | has_gaps=%s | missing=%s", gap.has_gaps, gap.missing_skills)
+
+        # Estimate tokens
+        input_tokens  = count_tokens(prompt, LLM_MODEL)
+        output_tokens = count_tokens(result.final_output or str(gap.model_dump()), LLM_MODEL)
+        gap.usage = {"agent": "SkillGapAgent", "input": input_tokens, "output": output_tokens, "model": LLM_MODEL}
+
+        log.info(
+            "[SkillGapAgent:analyse] END | has_gaps=%s | missing=%s | tokens=%d",
+            gap.has_gaps, gap.missing_skills, input_tokens + output_tokens
+        )
         return gap
 
     def _build_prompt(self, level: str, known_skills: list[str], courses: list[dict]) -> str:

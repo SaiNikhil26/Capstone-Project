@@ -22,6 +22,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import LLM_MODEL
 from logger import get_logger
 from app_agents.tools import report_recommendation
+from api.utils.token_utils import count_tokens
 
 log = get_logger("advisor_agent")
 
@@ -34,6 +35,7 @@ class RecommendationResult(BaseModel):
     summary:       str
     learning_path: list[str]   # ordered course names
     tips:          list[str]
+    usage:         dict = {}   # {input, output, model}
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -109,7 +111,16 @@ class LearningAdvisorAgent:
         log.info("[LearningAdvisorAgent:advise] finished | elapsed=%.2fs", elapsed)
 
         rec = self._extract_result(result)
-        log.info("[LearningAdvisorAgent:advise] END | summary_len=%d", len(rec.summary))
+
+        # Estimate tokens
+        input_tokens  = count_tokens(prompt, LLM_MODEL)
+        output_tokens = count_tokens(result.final_output or str(rec.model_dump()), LLM_MODEL)
+        rec.usage = {"agent": "AdvisorAgent", "input": input_tokens, "output": output_tokens, "model": LLM_MODEL}
+
+        log.info(
+            "[LearningAdvisorAgent:advise] END | summary_len=%d | tokens=%d",
+            len(rec.summary), input_tokens + output_tokens
+        )
         return rec
 
     def _build_prompt(
